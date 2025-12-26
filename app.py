@@ -38,10 +38,24 @@ if user_input:
         {"role": "user", "content": user_input}
     )
 
+    # ✅ EXACT ANSWER SYSTEM PROMPT
+    system_prompt = """You are an expert assistant. Answer EXACTLY what is asked. Rules:
+- Answer scope: No extra information beyond what's explicitly asked
+- Clarify when needed: Ask ONE clarifying question if ambiguous
+- Token-conscious: Use concise, single-sentence responses
+- Output framing: No greetings, apologies, or prefaces unless requested
+- Factual answers: Provide only verifiable facts with sources when possible
+- Error handling: Report exact issue briefly with one actionable step
+Answer only the query. Nothing more."""
+
     try:
         response = client.models.generate_content(
             model="gemini-flash-latest",
-            contents=user_input
+            contents=[system_prompt, user_input],  # ✅ Add system prompt
+            generation_config={
+                "max_output_tokens": 150,  # ✅ Token limit for concise responses
+                "temperature": 0.1  # ✅ Low creativity for factual answers
+            }
         )
         bot_reply = response.text
     except Exception:
